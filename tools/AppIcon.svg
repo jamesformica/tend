@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- Squircle background — sage green that bridges the app's dull/vibrant leaf palette. -->
+  <rect width="1024" height="1024" rx="232" fill="#7a8b62"/>
+
+  <!-- Plant silhouette in warm cream. Shapes are deliberately chunky so the icon stays
+       recognisable at 16x16; fine details would dissolve at small sizes. -->
+  <g fill="#f0dcb5">
+    <!-- Pot body (slight inward taper from rim to base) -->
+    <path d="M 380 696
+             L 644 696
+             L 624 840
+             Q 624 860 604 860
+             L 420 860
+             Q 400 860 400 840
+             Z"/>
+    <!-- Pot rim -->
+    <rect x="360" y="676" width="304" height="36" rx="6"/>
+
+    <!-- Stem rising from pot -->
+    <rect x="498" y="360" width="28" height="336" rx="14"/>
+
+    <!-- Left leaf — sweeping down-left, joins the stem near its middle. -->
+    <path d="M 512 560
+             C 360 510 280 410 280 260
+             C 420 300 500 400 512 560
+             Z"/>
+
+    <!-- Right leaf — sweeping up-right, joins the stem near its top. -->
+    <path d="M 512 440
+             C 656 400 728 290 720 160
+             C 590 200 512 300 512 440
+             Z"/>
+  </g>
+</svg>

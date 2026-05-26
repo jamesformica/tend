@@ -50,6 +50,12 @@ mkdir -p "${APP_BUNDLE}/Contents/Resources"
 
 cp "${BINARY}" "${APP_BUNDLE}/Contents/MacOS/${APP_NAME}"
 
+# Ship icon resources into the bundle. AppIcon.icns is referenced by CFBundleIconFile
+# below, so Finder / Dock / Launchpad pick it up automatically.
+if [[ -d "Resources" ]]; then
+    cp Resources/* "${APP_BUNDLE}/Contents/Resources/"
+fi
+
 cat > "${APP_BUNDLE}/Contents/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -63,6 +69,8 @@ cat > "${APP_BUNDLE}/Contents/Info.plist" <<EOF
     <string>${BUNDLE_ID}</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
     <key>CFBundleName</key>
     <string>${APP_NAME}</string>
     <key>CFBundleDisplayName</key>
