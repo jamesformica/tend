@@ -1,0 +1,19 @@
+README.md
+  s_863aa80196bbe8::t_4deb26b5b4fb41 1-33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "b3f99f3e68eb85bd0a8ac73008000603424df29c",
+  "prompts": {},
+  "sessions": {
+    "s_863aa80196bbe8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4a000088-6de0-421b-b3dd-5c689b35892b",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "James Formica <james.formica@gmail.com>"
+    }
+  }
+}
