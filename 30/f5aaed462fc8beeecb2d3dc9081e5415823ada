@@ -1,0 +1,25 @@
+build.sh
+  s_863aa80196bbe8::t_a9724573f7cd88 72-73
+  s_863aa80196bbe8::t_7af03744502393 53-58
+tools/AppIcon.svg
+  ai_agent 1-35
+tools/make_icon.sh
+  s_863aa80196bbe8::t_1c2fcc7076bcea 1-9,11-40
+  s_863aa80196bbe8::t_202a0d26886fe4 10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "30f5aaed462fc8beeecb2d3dc9081e5415823ada",
+  "prompts": {},
+  "sessions": {
+    "s_863aa80196bbe8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4a000088-6de0-421b-b3dd-5c689b35892b",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "James Formica <james.formica@gmail.com>"
+    }
+  }
+}
