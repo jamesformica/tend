@@ -1,0 +1,35 @@
+Sources/Tend/PlantFrames.swift
+  s_863aa80196bbe8::t_aa47aef1a2c926 4-8,10-13,15-35
+Sources/Tend/PlantEngine.swift
+  s_863aa80196bbe8::t_e19d8526650a42 274,277
+  s_863aa80196bbe8::t_1848e8b7f20b28 20
+Sources/Tend/PlantArt.swift
+  s_863aa80196bbe8::t_0a0c4ae4eca99b 123-124
+  s_863aa80196bbe8::t_e1138a071b8ae9 39,61-82,84-87,125-131,189-205
+  s_863aa80196bbe8::t_6b7a882502e3ea 168-178
+  s_863aa80196bbe8::t_0dc7df1cb43081 52,56-60
+Sources/Tend/PopoverView.swift
+  s_863aa80196bbe8::t_edd35645a9f432 207
+  s_863aa80196bbe8::t_ef6aa8d02c2b3c 54-57
+  s_863aa80196bbe8::t_38e2308afe4678 284
+  s_863aa80196bbe8::t_146b7db4ab1bab 8-14
+  s_863aa80196bbe8::t_c10514b4abbbec 37-38
+  s_863aa80196bbe8::t_c03a7c3d641283 212-251
+  s_863aa80196bbe8::t_0da40a3e200c9d 203-205
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "c4b27d318c87932931dc32afd954386b6ab316e7",
+  "prompts": {},
+  "sessions": {
+    "s_863aa80196bbe8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4a000088-6de0-421b-b3dd-5c689b35892b",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "James Formica <james.formica@gmail.com>"
+    }
+  }
+}
