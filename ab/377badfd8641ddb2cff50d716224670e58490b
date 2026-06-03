@@ -1,0 +1,19 @@
+Sources/Tend/Timings.swift
+  s_78d03d6737779d::t_76e0f986c26123 89-90,96,101-104
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "ab377badfd8641ddb2cff50d716224670e58490b",
+  "prompts": {},
+  "sessions": {
+    "s_78d03d6737779d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c899cb97-3fe9-4d0d-8c87-6f159c669286",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "James Formica <james.formica@gmail.com>"
+    }
+  }
+}
