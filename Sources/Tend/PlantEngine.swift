@@ -17,7 +17,7 @@ final class PlantEngine: ObservableObject {
 
     // Set to an in-between ASCII frame while playing the Wilting → Flowering recovery
     // animation. When non-nil, the popover renders this instead of plant.stage.frame.
-    @Published private(set) var recoveryFrame: String?
+    @Published private(set) var recoveryFrame: RecoveryFrame?
 
     // Tracks whether the popover is currently shown. Tier qualification only accumulates
     // while this is true — opening the popover is the deliberate act of taking a break.
@@ -271,10 +271,10 @@ final class PlantEngine: ObservableObject {
     }
 
     private func playRecoveryAnimation() {
-        recoveryFrame = RecoveryFrame.step1
+        recoveryFrame = .step1
         Task { @MainActor [weak self] in
             try? await Task.sleep(nanoseconds: 400_000_000)
-            self?.recoveryFrame = RecoveryFrame.step2
+            self?.recoveryFrame = .step2
             try? await Task.sleep(nanoseconds: 400_000_000)
             self?.recoveryFrame = nil
         }

@@ -36,6 +36,7 @@ enum PlantArt {
         .flower: PartColor(dull: (0.62, 0.52, 0.56), vibrant: (0.98, 0.40, 0.62)),
     ]
 
+
     // For the menu bar leaf icon: returns nil at vibrancy ~0 so the SF Symbol's automatic
     // template color (white on dark bars, black on light) reads at full contrast. As
     // vibrancy climbs, interpolates from that base toward the part's vibrant color — the
@@ -48,19 +49,42 @@ enum PlantArt {
     }
 
     static func render(frame: String, stage: PlantStage, vibrancy: Double) -> AttributedString {
-        switch stage {
-        case .wilting: return uniform(frame, color: .red)
-        case .dead:    return uniform(frame, color: .secondary)
-        default:       break
-        }
-
+        if stage == .dead { return uniform(frame, color: .secondary) }
         guard let mask = mask(for: stage) else {
             return uniform(frame, color: .primary)
         }
+        // Wilting renders at vibrancy 0 — the droopy shape carries the sadness, and the
+        // dull palette gives each part its own muted color (pot brown vs flower dusty
+        // rose), which reads as "tired" without the alarming red we had before.
+        let v = stage == .wilting ? 0 : vibrancy
+        return renderMasked(frame: frame, mask: mask, vibrancy: v)
+    }
 
-        // Resolve part colors once per render, then emit one AttributedString per
-        // contiguous run of same-part characters — drops ~100 per-char allocations
-        // down to ~10–20 runs for the largest frames.
+    // Recovery animation frames share the flowering palette so the wilting → step1 → step2
+    // → flowering transition stays in a single color story (muted brown → vibrant bloom),
+    // not the old red-to-white-to-color flash.
+    static func render(recoveryFrame: RecoveryFrame, vibrancy: Double) -> AttributedString {
+        renderMasked(frame: recoveryFrame.frame, mask: mask(for: recoveryFrame), vibrancy: vibrancy)
+    }
+
+    static func uniform(_ frame: String, color: Color) -> AttributedString {
+        var attr = AttributedString(frame)
+        attr.foregroundColor = color
+        return attr
+    }
+
+    static func interpolatedColor(from src: (r: Double, g: Double, b: Double), to dst: (r: Double, g: Double, b: Double), t: Double) -> Color {
+        let t = max(0, min(1, t))
+        let r = src.r + (dst.r - src.r) * t
+        let g = src.g + (dst.g - src.g) * t
+        let b = src.b + (dst.b - src.b) * t
+        return Color(.sRGB, red: r, green: g, blue: b, opacity: 1)
+    }
+
+    // Core render path. Resolves part colors once, then emits one AttributedString per
+    // contiguous run of same-part characters — drops per-char allocations from ~100 to
+    // ~10–20 runs for the largest frames.
+    private static func renderMasked(frame: String, mask: String, vibrancy: Double) -> AttributedString {
         let runColor: [PlantPart: Color] = palette.mapValues { $0.color(vibrancy: vibrancy) }
         let frameChars = Array(frame)
         let maskChars = Array(mask)
@@ -77,20 +101,6 @@ enum PlantArt {
             i = j
         }
         return result
-    }
-
-    static func interpolatedColor(from src: (r: Double, g: Double, b: Double), to dst: (r: Double, g: Double, b: Double), t: Double) -> Color {
-        let t = max(0, min(1, t))
-        let r = src.r + (dst.r - src.r) * t
-        let g = src.g + (dst.g - src.g) * t
-        let b = src.b + (dst.b - src.b) * t
-        return Color(.sRGB, red: r, green: g, blue: b, opacity: 1)
-    }
-
-    static func uniform(_ frame: String, color: Color) -> AttributedString {
-        var attr = AttributedString(frame)
-        attr.foregroundColor = color
-        return attr
     }
 
     private static func partAt(_ i: Int, in mask: [Character]) -> PlantPart? {
@@ -110,7 +120,15 @@ enum PlantArt {
         case .youngling: return younglingMask
         case .growing:   return growingMask
         case .flowering: return floweringMask
-        case .wilting, .dead: return nil
+        case .wilting:   return wiltingMask
+        case .dead:      return nil
+        }
+    }
+
+    private static func mask(for recovery: RecoveryFrame) -> String {
+        switch recovery {
+        case .step1: return step1Mask
+        case .step2: return step2Mask
         }
     }
 
@@ -147,11 +165,44 @@ enum PlantArt {
         " PPPPP",
     ].joined(separator: "\n")
 
+    private static let wiltingMask: String = [
+        "",
+        "",
+        "     FF",
+        "  F FFFF",
+        " LSS  F",
+        " L SLL",
+        "PPPPPPP",
+        " PPPPP",
+    ].joined(separator: "\n")
+
     private static let floweringMask: String = [
         "      F",
         "    FFFFF",
         "   FFFFFFF",
         "    FFFF",
+        " LSS",
+        " L SLL",
+        "PPPPPPP",
+        " PPPPP",
+    ].joined(separator: "\n")
+
+    private static let step1Mask: String = [
+        "",
+        "      F",
+        "    FFFFF",
+        "     FFF",
+        " LSS",
+        " L SLL",
+        "PPPPPPP",
+        " PPPPP",
+    ].joined(separator: "\n")
+
+    private static let step2Mask: String = [
+        "      F",
+        "    FFFFF",
+        "   FFFFFFF",
+        "     FFF",
         " LSS",
         " L SLL",
         "PPPPPPP",

@@ -1,30 +1,38 @@
 import Foundation
 
 // Intermediate frames for the Wilting → Flowering recovery animation.
-// Played in sequence over ~1.2s when the user waters a wilting plant.
-enum RecoveryFrame {
-    static let step1: String = """
+// Played in sequence over ~0.8s when the user waters a wilting plant.
+// Both frames are 8 lines and use the same closing-`"""` indent as PlantStage.frame,
+// so the pot sits at the same column across the whole animation — no layout shift.
+enum RecoveryFrame: CaseIterable {
+    case step1, step2
 
+    var frame: String {
+        switch self {
+        case .step1:
+            return """
 
-         __
-       _(_)_
-        (_)
-      (\\|
-      _ |__
-     ['____]
-      \\___/
-    """
-
-    static let step2: String = """
-         _
-       _(_)_
-      (_)*(_)
-        (_)
-      (\\|
-      _ |__
-     ['____]
-      \\___/
-    """
+                  _
+                _(_)_
+                 (_)
+             (\\|
+             _ |__
+            ['____]
+             \\___/
+            """
+        case .step2:
+            return """
+                  _
+                _(_)_
+               (_)*(_)
+                 (_)
+             (\\|
+             _ |__
+            ['____]
+             \\___/
+            """
+        }
+    }
 }
 
 enum PlantStage: String, CaseIterable {

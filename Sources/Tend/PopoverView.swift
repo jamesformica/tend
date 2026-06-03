@@ -5,6 +5,13 @@ struct PopoverView: View {
     @State private var isReplanting: Bool = false
     @State private var nameInput: String = ""
 
+    // Hidden debug panel — five quick taps on the plant name toggle it on/off.
+    // The override only changes which frame is rendered; engine state is untouched.
+    @State private var showDebug: Bool = false
+    @State private var stageOverride: PlantStage?
+    @State private var nameClickCount: Int = 0
+    @State private var lastNameClickAt: Date = .distantPast
+
     var body: some View {
         Group {
             if isReplanting || engine.plant == nil {
@@ -27,6 +34,8 @@ struct PopoverView: View {
             Text(displayName(plant))
                 .font(.system(.title3, design: .monospaced))
                 .frame(maxWidth: .infinity, alignment: .center)
+                .contentShape(Rectangle())
+                .onTapGesture { registerNameTap() }
 
             plantFrameText(plantFrame(plant))
 
@@ -42,6 +51,10 @@ struct PopoverView: View {
             asciiHRule
 
             quitButton
+
+            if showDebug {
+                debugSection(actual: plant.stage)
+            }
         }
     }
 
@@ -186,15 +199,54 @@ struct PopoverView: View {
         return ordinal.isEmpty ? plant.name : "\(plant.name) \(ordinal)"
     }
 
-    // Recovery frames render uniform during the brief animation; otherwise use PlantArt
-    // for masked per-part colors interpolated by current vibrancy.
     private func plantFrame(_ plant: Plant) -> AttributedString {
+        if let override = stageOverride {
+            return PlantArt.render(frame: override.frame, stage: override, vibrancy: engine.vibrancy)
+        }
         if let recovery = engine.recoveryFrame {
-            var attr = AttributedString(recovery)
-            attr.foregroundColor = .primary
-            return attr
+            return PlantArt.render(recoveryFrame: recovery, vibrancy: engine.vibrancy)
         }
         return PlantArt.render(frame: plant.stage.frame, stage: plant.stage, vibrancy: engine.vibrancy)
+    }
+
+    // Five rapid taps (under 1s between each) toggle the debug panel. Used both to open
+    // and to close — same gesture, opposite direction.
+    private func registerNameTap() {
+        let now = Date()
+        if now.timeIntervalSince(lastNameClickAt) < 1.0 {
+            nameClickCount += 1
+        } else {
+            nameClickCount = 1
+        }
+        lastNameClickAt = now
+        if nameClickCount >= 5 {
+            nameClickCount = 0
+            showDebug.toggle()
+            if !showDebug { stageOverride = nil }
+        }
+    }
+
+    // Bold = the plant's actual stage (so you can always see ground truth).
+    // Accent fill = the currently-active render override. Tapping the same stage clears it.
+    @ViewBuilder
+    private func debugSection(actual: PlantStage) -> some View {
+        VStack(spacing: 6) {
+            sectionDivider("debug")
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 4) {
+                ForEach(PlantStage.allCases, id: \.self) { stage in
+                    Button {
+                        stageOverride = (stageOverride == stage) ? nil : stage
+                    } label: {
+                        Text(stage.rawValue)
+                            .font(.system(.caption2, design: .monospaced))
+                            .fontWeight(stage == actual ? .bold : .regular)
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(stageOverride == stage ? .accentColor : .secondary)
+                }
+            }
+        }
     }
 
     @ViewBuilder
@@ -229,7 +281,7 @@ struct PopoverView: View {
             let p = engine.firstTierProgress
             VStack(spacing: 6) {
                 ProgressView(value: p.into, total: p.total)
-                Text("step away from your mac for ~\(Int(ceil(p.remaining)))s and i'll drink.")
+                Text("step away from your mac for ~\(Int(ceil(p.remaining)))s to water \(plant.name.lowercased()).")
                     .font(.system(.caption, design: .monospaced))
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
