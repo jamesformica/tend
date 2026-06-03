@@ -20,7 +20,7 @@ struct MenubarLabelView: View {
         let stage = engine.plant?.stage ?? .seedling
         HStack(spacing: 2) {
             Image(systemName: MenubarLabel.symbol(for: stage))
-                .foregroundStyleIfPresent(MenubarLabel.tint(stage: stage, vibrancy: engine.vibrancy, colorScheme: colorScheme))
+                .foregroundStyleIfPresent(MenubarLabel.tint(for: engine.plant, vibrancy: engine.vibrancy, colorScheme: colorScheme, timings: engine.timings))
             if let p = engine.plant, p.stage != .dead {
                 Text(MenubarLabel.counterText(for: p, timings: engine.timings))
                     .monospacedDigit()
@@ -44,10 +44,35 @@ enum MenubarLabel {
         return formatDuration(p.unwateredActive) + (needsAttention ? "*" : "")
     }
 
+    // Single source of truth for the menu-bar health color. Both the leaf symbol and the
+    // counter read this, so they always agree. Orange = "take a break and water me"
+    // (growth stalled, flowering getting thirsty, or freshly wilting); red = "about to
+    // die" (final stretch of the wilting window); healthy/dead handled by the callers.
+    enum Health { case healthy, warning, critical, dead }
+
+    static func health(for p: Plant, timings: Timings) -> Health {
+        switch p.stage {
+        case .dead:
+            return .dead
+        case .wilting:
+            // Escalate from orange to red as death nears — dyingReminder sits in the back
+            // half of the wilting→dead window.
+            return p.unwateredActive >= timings.dyingReminder ? .critical : .warning
+        case .flowering:
+            // Amber heads-up before it actually wilts, so there's time to step away.
+            return p.unwateredActive >= timings.secondReminder ? .warning : .healthy
+        case .seedling, .youngling, .growing:
+            return p.unwateredActive >= timings.growthPauseThreshold ? .warning : .healthy
+        }
+    }
+
     static func counterColor(for p: Plant, timings: Timings) -> Color {
-        if p.stage == .wilting { return .red }
-        if p.unwateredActive >= timings.growthPauseThreshold { return .orange }
-        return .primary
+        switch health(for: p, timings: timings) {
+        case .critical: return .red
+        case .warning:  return .orange
+        case .healthy:  return .primary
+        case .dead:     return .secondary // counter is hidden when dead; here for completeness
+        }
     }
 
     static func symbol(for stage: PlantStage) -> String {
@@ -57,12 +82,16 @@ enum MenubarLabel {
         }
     }
 
-    static func tint(stage: PlantStage, vibrancy: Double, colorScheme: ColorScheme) -> Color? {
-        switch stage {
-        case .seedling, .youngling, .growing, .flowering:
+    static func tint(for plant: Plant?, vibrancy: Double, colorScheme: ColorScheme, timings: Timings) -> Color? {
+        // No plant yet (between memorial and replant) — show the healthy vibrancy bloom.
+        guard let p = plant else {
             return PlantArt.menuBarTint(for: .leaf, vibrancy: vibrancy, colorScheme: colorScheme)
-        case .wilting: return .red
-        case .dead:    return .secondary
+        }
+        switch health(for: p, timings: timings) {
+        case .critical: return .red
+        case .warning:  return .orange
+        case .dead:     return .secondary
+        case .healthy:  return PlantArt.menuBarTint(for: .leaf, vibrancy: vibrancy, colorScheme: colorScheme)
         }
     }
 
